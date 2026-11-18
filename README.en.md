@@ -23,6 +23,10 @@
 
 > **This is an extraction / mirror repository.** The publisher deleted both the GitHub repo and the npm package, so **`dsh plugin add dsh-purge` (install by package name) no longer works**. Install with the **tarball / local directory / manual** routes below. After installing you must restart the host and click **Apply** once inside **Clean** — otherwise nothing changes.
 
+
+> [!IMPORTANT]
+> **Read [DISCLAIMER.md](DISCLAIMER.md) before use.** This project modifies the DeepSeek Harness installation **on your own machine only**, is provided **AS IS** under the MIT License without warranty, and is intended solely for environments you are authorised to administer. All consequences of use rest with the user.
+
 ---
 
 ## Contents
