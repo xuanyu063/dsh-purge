@@ -56,11 +56,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OWNER/dsh-purge.git"
+    "url": "git+https://github.com/xuanyu063/dsh-purge.git"
   },
-  "homepage": "https://github.com/OWNER/dsh-purge#readme",
+  "homepage": "https://github.com/xuanyu063/dsh-purge#readme",
   "bugs": {
-    "url": "https://github.com/OWNER/dsh-purge/issues"
+    "url": "https://github.com/xuanyu063/dsh-purge/issues"
   },
   "dsh": {
     "bundle": {
@@ -78,9 +78,9 @@
     },
     "install": {
       "preferred": "tarball",
-      "tarball": "https://github.com/OWNER/dsh-purge/archive/refs/heads/master.tar.gz",
-      "zip": "https://github.com/OWNER/dsh-purge/archive/refs/heads/master.zip",
-      "git": "https://github.com/OWNER/dsh-purge.git"
+      "tarball": "https://github.com/xuanyu063/dsh-purge/archive/refs/heads/master.tar.gz",
+      "zip": "https://github.com/xuanyu063/dsh-purge/archive/refs/heads/master.zip",
+      "git": "https://github.com/xuanyu063/dsh-purge.git"
     }
   },
   "publishConfig": {
