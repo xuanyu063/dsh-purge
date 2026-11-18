@@ -1,0 +1,13 @@
+# 统一换行，避免 Windows 上 autocrlf 把脚本改坏
+* text=auto eol=lf
+
+# Windows 专用脚本保持 CRLF
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# 产物与图片不做文本处理
+*.png binary
+*.ico binary
+*.zip binary
+client.js -diff
