@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    branches: [master, main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Syntax check
+        run: |
+          set -e
+          for f in lib/index.js lib/core.js lib/reapply.js lib/update.js lib/uninstall.js \
+                   lib/adapters.js lib/adapted.js lib/asar-read.js lib/bakfill.js \
+                   lib/doctor.js lib/landing.js bin/dsh-purge.js client.js
+          do
+            node --check "$f"
+            echo "ok $f"
+          done
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          version="$(node -p "require('./package.json').version")"
+          tag="v${version}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "already published: $tag"
+            exit 0
+          fi
+          first="$(head -n 1 release-notes.md | tr -d '\r')"
+          if [ "$first" != "# ${version}" ]; then
+            echo "release-notes.md 第一行必须是 # ${version}，现在是: ${first}"
+            exit 1
+          fi
+          zip="dsh-purge-${version}.zip"
+          git archive --format=zip --prefix="dsh-purge-${version}/" --output="$zip" HEAD
+          args=(release create "$tag" --target "$GITHUB_SHA" --title "$tag" --notes-file release-notes.md)
+          case "$version" in
+            *beta*|*alpha*|*rc*) args+=(--prerelease) ;;
+          esac
+          gh "${args[@]}"
+          test -s "$zip"
+          gh release upload "$tag" "$zip" --clobber
+          echo "published https://github.com/${GITHUB_REPOSITORY}/releases/tag/${tag}"

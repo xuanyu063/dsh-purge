@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Syntax check (entry + engine + new modules)
+        shell: bash
+        run: |
+          set -e
+          for f in \
+            lib/index.js lib/core.js lib/reapply.js lib/update.js lib/uninstall.js \
+            lib/adapters.js lib/adapted.js lib/asar-read.js lib/bakfill.js \
+            lib/doctor.js lib/landing.js lib/reapply-cli.js \
+            bin/dsh-purge.js client.js
+          do
+            node --check "$f"
+            echo "ok $f"
+          done
+
+      - name: package.json sanity
+        run: node -e "const p=require('./package.json'); if(!p.name||!p.version) process.exit(1); if(!p.dsh||!p.dsh.bundle) process.exit(1); console.log(p.name+'@'+p.version, 'target='+(p.dshTarget||'?'))"
+
+      - name: Adapter packs are valid JSON + schema-shaped
+        shell: bash
+        run: |
+          set -e
+          node -e '
+            const fs = require("fs");
+            const dirs = ["examples/patches.d"];
+            let n = 0;
+            for (const d of dirs) {
+              if (!fs.existsSync(d)) continue;
+              for (const f of fs.readdirSync(d).filter(x => x.endsWith(".json"))) {
+                const raw = JSON.parse(fs.readFileSync(d + "/" + f, "utf8"));
+                if (!Array.isArray(raw.edits) || raw.edits.length === 0) throw new Error(f + ": edits 为空");
+                for (const e of raw.edits) {
+                  if (!e.id || !e.file || typeof e.find !== "string" || typeof e.replace !== "string") {
+                    throw new Error(f + ": edit 缺字段 " + JSON.stringify(e).slice(0, 80));
+                  }
+                }
+                n += raw.edits.length;
+                console.log("ok " + f + " (" + raw.edits.length + " edits)");
+              }
+            }
+            console.log("total edits:", n);
+          '
+
+      - name: CLI smoke (no host present → doctor must exit 0 and print rows)
+        shell: bash
+        run: |
+          set +e
+          node bin/dsh-purge.js --help | head -n 12
+          node bin/dsh-purge.js --doctor --json > doctor.json
+          code=$?
+          echo "doctor exit=$code"
+          node -e "const r=require('./doctor.json'); console.log('rows='+r.rows.length, 'summary='+JSON.stringify(r.summary)); if(!Array.isArray(r.rows)||r.rows.length<5) process.exit(1)"
+          # 无宿主时可能有 fail 项，退出码允许 0/2
+          if [ "$code" != "0" ] && [ "$code" != "2" ]; then exit 1; fi

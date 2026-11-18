@@ -1,0 +1,47 @@
+name: Bug report
+description: 补丁没生效 / 报错 / 状态不对
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请先跑 `dsh-purge --doctor` 并把结果贴上来——大部分问题看体检就能定位（`sealed` 未切包、进程比补丁旧、备份缺失）。
+  - type: textarea
+    id: doctor
+    attributes:
+      label: --doctor 输出
+      description: 直接粘文本即可（敏感路径可打码）
+      render: shell
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 版本对照
+      description: doctor 里「版本对照」那一行（插件版本 / 宿主版本 / dshTarget）
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: 平台
+      options: [Windows, macOS, Linux]
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 执行 …
+        2. 期望 …
+        3. 实际 …
+    validations:
+      required: true
+  - type: textarea
+    id: status
+    attributes:
+      label: --status 里的补丁行
+      description: 只贴出 skipped / pending 的那几行即可
+      render: shell

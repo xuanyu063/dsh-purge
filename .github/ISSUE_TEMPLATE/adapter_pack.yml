@@ -1,0 +1,49 @@
+name: Adapter pack (新宿主版本的适配包)
+description: 提交某个宿主版本的 patches.d/*.json
+title: "[adapter] <宿主版本>"
+labels: ["adapter-pack"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        适配包是本项目最有价值的贡献：宿主升级后内置补丁会整片失配，有对应版本的包就能一条命令恢复。
+        格式见 [docs/ADAPTERS.md](../blob/master/docs/ADAPTERS.md)。
+  - type: input
+    id: host
+    attributes:
+      label: 目标宿主版本
+      placeholder: 0.2.2-rc.1
+    validations:
+      required: true
+  - type: textarea
+    id: verify
+    attributes:
+      label: --adapters --verify 输出
+      description: 必须全部 ok（ok 的判定基于官方 asar 原文）
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: 应用后的 --doctor
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: pack
+    attributes:
+      label: 补丁包内容
+      description: 直接贴 JSON，或说明 PR 链接
+      render: json
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 自检
+      options:
+        - label: 已在「未打补丁的干净宿主」上验证（verify 全 ok）
+          required: true
+        - label: 每条 edit 都有 marker 或 tolerateMissing，可重复执行
+          required: true
